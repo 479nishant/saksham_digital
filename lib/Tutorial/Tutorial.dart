@@ -1,18 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../MODELS/TutorialsResponse.dart'; // Ensure this file exists
+import 'TutorialDetailPage.dart';
+import 'TutorialsResponses.dart';
 
-// Import the new model
- // ASSUME you placed the provided model here
-
-// Import the new detail page
-import '../MODELS/TutorialsResponse.dart';
-import 'TutorialDetailPage.dart'; // ASSUME this path is correct
-
-// --- COLOR PALETTE DEFINITIONS (Consistent with all other pages) ---
-const Color primaryRed = Color(0xFFC72F3A); // Deep Red from the design
-const Color darkText = Color(0xFF333333); // For general dark text
-const Color lightGrayText = Color(0xFF9E9E9E); // For subtle text
+// --- COLOR PALETTE ---
+const Color primaryRed = Color(0xFFE91E63);
+const Color darkText = Color(0xFF333333);
+const Color lightGrayText = Color(0xFF9E9E9E);
 
 class TutorialsPage extends StatefulWidget {
   const TutorialsPage({super.key});
@@ -22,12 +18,13 @@ class TutorialsPage extends StatefulWidget {
 }
 
 class _TutorialsPageState extends State<TutorialsPage> {
-  // Use the Tutorial model list instead of dynamic list
   List<Tutorial> tutorials = [];
   bool isLoading = true;
   String? errorMessage;
 
-  final String baseImageUrl = "https://sakshamdigitaltechnology.com/uploads/tutorials/";
+  // Updated base URL (correct folder name)
+  final String baseImageUrl =
+      "https://sakshamdigitaltechnology.com/uploads/tutorial/";
 
   @override
   void initState() {
@@ -35,7 +32,6 @@ class _TutorialsPageState extends State<TutorialsPage> {
     fetchTutorials();
   }
 
-  // Modified to use the TutorialsResponse model
   Future<void> fetchTutorials() async {
     setState(() {
       isLoading = true;
@@ -69,12 +65,10 @@ class _TutorialsPageState extends State<TutorialsPage> {
     }
   }
 
-  // Modified to accept Tutorial model
   Widget buildTutorialItem(Tutorial tutorial) {
-    String imageUrl = baseImageUrl + tutorial.image;
+    final String imageUrl = baseImageUrl + tutorial.image;
 
     return GestureDetector(
-      // --- MODIFIED: Navigate to TutorialDetailPage ---
       onTap: () {
         Navigator.push(
           context,
@@ -83,71 +77,96 @@ class _TutorialsPageState extends State<TutorialsPage> {
           ),
         );
       },
-      // -----------------------------------------------
       child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        elevation: 4,
+        elevation: 6,
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: primaryRed.withOpacity(0.1), width: 1),
+          borderRadius: BorderRadius.circular(16),
         ),
+        shadowColor: primaryRed.withOpacity(0.2),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(14),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- Image/Placeholder ---
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  imageUrl,
-                  width: 70,
-                  height: 70,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    width: 70,
-                    height: 70,
-                    color: primaryRed.withOpacity(0.1),
-                    child: const Icon(Icons.videocam_outlined, color: primaryRed, size: 30),
-                  ),
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      width: 70,
-                      height: 70,
-                      color: lightGrayText.withOpacity(0.2),
-                      child: Center(
-                        child: CircularProgressIndicator(
+              // --- Thumbnail with play icon ---
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      imageUrl,
+                      width: 90,
+                      height: 90,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 90,
+                        height: 90,
+                        decoration: BoxDecoration(
+                          color: primaryRed.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.videocam_outlined,
                           color: primaryRed,
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                              : null,
+                          size: 40,
                         ),
                       ),
-                    );
-                  },
-                ),
+                      loadingBuilder: (context, child, progress) {
+                        if (progress == null) return child;
+                        return Container(
+                          width: 90,
+                          height: 90,
+                          decoration: BoxDecoration(
+                            color: lightGrayText.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              color: primaryRed,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  )
+                ],
               ),
-              const SizedBox(width: 15),
+              const SizedBox(width: 16),
 
-              // --- Title and Subtitle ---
+              // --- Text info ---
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      tutorial.title, // Access title via model
+                      tutorial.title,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: primaryRed,
+                        color: darkText,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
-                      "Educator: ${tutorial.educatorName}", // Access educatorName via model
+                      "Educator: ${tutorial.educatorName}",
                       style: const TextStyle(
                         fontSize: 14,
                         color: lightGrayText,
@@ -155,15 +174,19 @@ class _TutorialsPageState extends State<TutorialsPage> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    // Display Rating Star and Count
+                    const SizedBox(height: 6),
                     Row(
                       children: [
-                        Icon(Icons.star, color: Colors.amber, size: 14),
+                        const Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                          size: 16,
+                        ),
                         const SizedBox(width: 4),
                         Text(
-                          "${tutorial.ratingStar.toStringAsFixed(1)} (${tutorial.ratingCount})",
+                          "${tutorial.ratingStar.toStringAsFixed(1)}  (${tutorial.ratingCount})",
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             color: lightGrayText,
                           ),
                         ),
@@ -172,13 +195,11 @@ class _TutorialsPageState extends State<TutorialsPage> {
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
-
-              // --- Arrow Icon ---
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 18,
-                color: primaryRed,
+              const SizedBox(width: 8),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 20,
+                color: primaryRed.withOpacity(0.8),
               ),
             ],
           ),
@@ -187,44 +208,85 @@ class _TutorialsPageState extends State<TutorialsPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return isLoading
-        ? Center(child: const CircularProgressIndicator(color: primaryRed))
-        : errorMessage != null
-        ? Center(
+  Widget buildErrorState() {
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, color: primaryRed, size: 40),
+          const Icon(Icons.error_outline, color: primaryRed, size: 40),
           const SizedBox(height: 10),
-          Text(errorMessage!, style: const TextStyle(color: darkText)),
+          Text(
+            errorMessage ?? "Something went wrong",
+            style: const TextStyle(color: darkText),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: fetchTutorials,
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryRed,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: const Text("Retry", style: TextStyle(color: Colors.white)),
+            child: const Text(
+              "Retry",
+              style: TextStyle(color: Colors.white),
+            ),
           )
         ],
       ),
-    )
-        : tutorials.isEmpty
-        ? const Center(
-        child: Text("No tutorials found.", style: TextStyle(color: darkText))
-    )
-        : RefreshIndicator(
+    );
+  }
+
+  Widget buildEmptyState() {
+    return const Center(
+      child: Text(
+        "No tutorials found.",
+        style: TextStyle(color: darkText, fontSize: 16),
+      ),
+    );
+  }
+
+  Widget buildTutorialList() {
+    return RefreshIndicator(
       onRefresh: fetchTutorials,
       color: primaryRed,
       child: ListView.builder(
-        padding: const EdgeInsets.only(top: 16, bottom: 16, left: 4, right: 4),
+        padding: const EdgeInsets.only(top: 12, bottom: 16),
         itemCount: tutorials.length,
         itemBuilder: (context, index) {
           return buildTutorialItem(tutorials[index]);
         },
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(
+        backgroundColor: primaryRed,
+        elevation: 0,
+        title: const Text(
+          "Tutorials",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: isLoading
+          ? const Center(
+        child: CircularProgressIndicator(color: primaryRed),
+      )
+          : errorMessage != null
+          ? buildErrorState()
+          : tutorials.isEmpty
+          ? buildEmptyState()
+          : buildTutorialList(),
     );
   }
 }

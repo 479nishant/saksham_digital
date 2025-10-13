@@ -1,33 +1,3 @@
-// tutorial_model.dart
-
-class TutorialsResponse {
-  final List<Tutorial> tutorials;
-  final List<CourseMenu> courseMenu;
-
-  TutorialsResponse({
-    required this.tutorials,
-    required this.courseMenu,
-  });
-
-  factory TutorialsResponse.fromJson(Map<String, dynamic> json) {
-    return TutorialsResponse(
-      tutorials: (json['tutorials'] as List)
-          .map((e) => Tutorial.fromJson(e))
-          .toList(),
-      courseMenu: (json['course_menu'] as List)
-          .map((e) => CourseMenu.fromJson(e))
-          .toList(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'tutorials': tutorials.map((e) => e.toJson()).toList(),
-      'course_menu': courseMenu.map((e) => e.toJson()).toList(),
-    };
-  }
-}
-
 class Tutorial {
   final int id;
   final String title;
@@ -43,6 +13,7 @@ class Tutorial {
   final String createdAt;
   final String updatedAt;
   final int activeTopicsCount;
+  final String video; // <-- Add this field
 
   Tutorial({
     required this.id,
@@ -59,6 +30,7 @@ class Tutorial {
     required this.createdAt,
     required this.updatedAt,
     required this.activeTopicsCount,
+    required this.video, // <-- constructor
   });
 
   factory Tutorial.fromJson(Map<String, dynamic> json) {
@@ -79,6 +51,7 @@ class Tutorial {
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
       activeTopicsCount: json['active_topics_count'],
+      video: json['video'] ?? "", // <-- make sure your API provides this
     );
   }
 
@@ -98,34 +71,7 @@ class Tutorial {
       'created_at': createdAt,
       'updated_at': updatedAt,
       'active_topics_count': activeTopicsCount,
-    };
-  }
-}
-
-class CourseMenu {
-  final String courseName;
-  final int id;
-  final String pageName;
-
-  CourseMenu({
-    required this.courseName,
-    required this.id,
-    required this.pageName,
-  });
-
-  factory CourseMenu.fromJson(Map<String, dynamic> json) {
-    return CourseMenu(
-      courseName: json['course_name'],
-      id: json['id'],
-      pageName: json['page_name'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'course_name': courseName,
-      'id': id,
-      'page_name': pageName,
+      'video': video, // <-- include in JSON
     };
   }
 }

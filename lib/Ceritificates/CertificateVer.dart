@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+const Color primaryRed = Color(0xFFE91E63);
+const Color lightGrey = Color(0xFFF0F0F0);
+
 class CertificateVerPage extends StatefulWidget {
   const CertificateVerPage({super.key});
 
@@ -47,7 +50,7 @@ class _CertificateVerPageState extends State<CertificateVerPage> {
         final body = jsonDecode(response.body);
         setState(() {
           _responseData = body;
-          _responseMessage = "Verification Success";
+          _responseMessage = "Verification Success ✅";
         });
       } else {
         String msg = "Error ${response.statusCode}";
@@ -94,74 +97,154 @@ class _CertificateVerPageState extends State<CertificateVerPage> {
     return TextFormField(
       controller: controller,
       readOnly: readOnly,
-      decoration: InputDecoration(labelText: label),
-      keyboardType: keyboardType,
       onTap: onTap,
+      keyboardType: keyboardType,
       validator: required
           ? (value) => value == null || value.isEmpty ? "Enter $label" : null
           : null,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: lightGrey,
+        labelStyle: const TextStyle(color: Colors.black54),
+        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: primaryRed.withOpacity(0.5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: primaryRed, width: 2),
+        ),
+      ),
     );
   }
 
-  Widget _buildResponseSection() {
-    if (_responseMessage == null) {
-      return const SizedBox.shrink();
-    }
-    return Padding(
-      padding: const EdgeInsets.only(top: 24.0),
+  Widget _buildResponseCard() {
+    if (_responseMessage == null) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.only(top: 24),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: _responseData != null ? Colors.green : Colors.red,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             _responseMessage!,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: (_responseData != null) ? Colors.green : Colors.red,
+              color: _responseData != null ? Colors.green[800] : Colors.red[800],
             ),
           ),
+          const SizedBox(height: 16),
           if (_responseData != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12.0),
-              child: Text(
-                jsonEncode(_responseData),
-                style: const TextStyle(fontSize: 14),
-              ),
+            Column(
+              children: [
+                _buildInfoRow("Certificate No", _responseData!["certificate_number"] ?? "-"),
+                const SizedBox(height: 8),
+                _buildInfoRow("Name", _responseData!["name"] ?? "-"),
+                const SizedBox(height: 8),
+                _buildInfoRow("Date of Birth", _responseData!["dob"] ?? "-"),
+                const SizedBox(height: 8),
+                _buildInfoRow("Course", _responseData!["course"] ?? "-"),
+              ],
             ),
         ],
       ),
     );
   }
 
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Certificate Verify"),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              _buildTextField(_certNumberController, "Certificate Number"),
-              _buildTextField(
-                _dobController,
-                "Date of Birth",
-                readOnly: true,
-                onTap: _pickDob,
+      backgroundColor: Colors.white,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Certificate Verification",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: primaryRed,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildTextField(_certNumberController, "Certificate Number"),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    _dobController,
+                    "Date of Birth",
+                    readOnly: true,
+                    onTap: _pickDob,
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: _loading
+                        ? const Center(child: CircularProgressIndicator())
+                        : ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryRed,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: _verifyCertificate,
+                      child: const Text(
+                        "Verify Certificate",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  _buildResponseCard(),
+                ],
               ),
-              const SizedBox(height: 20),
-              _loading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                onPressed: _verifyCertificate,
-                child: const Text("Verify"),
-              ),
-              _buildResponseSection(),
-            ],
+            ),
           ),
         ),
       ),

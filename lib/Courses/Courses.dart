@@ -6,8 +6,6 @@ import 'package:http/http.dart' as http;
 import '../MODELS/CoursesModel.dart';
 import 'courses_page.dart';
 
-
-
 const Color primaryRed = Color(0xFFE91E63);
 const Color lightGrey = Color(0xFFF0F0F0);
 const Color darkText = Color(0xFF333333);
@@ -59,8 +57,10 @@ class _CoursePageState extends State<CoursePage> {
       appBar: AppBar(
         title: const Text(
           "Courses",
-          style: TextStyle(color: primaryRed),
-        ),
+          style: TextStyle(color: primaryRed,fontWeight: FontWeight.bold),
+
+        ),centerTitle: true
+        ,
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: primaryRed),
         elevation: 0,
@@ -116,18 +116,53 @@ class _CoursePageState extends State<CoursePage> {
                       ],
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center, // Center the content
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        // --- Logo ---
+                        if (course.logo != null && course.logo!.isNotEmpty)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              "https://sakshamdigitaltechnology.com/uploads/courses/logo/${course.logo}",
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
+                                return Container(
+                                  width: 80,
+                                  height: 80,
+                                  color: lightGrey,
+                                  child: const Center(
+                                    child: CircularProgressIndicator(
+                                        color: primaryRed, strokeWidth: 2),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                width: 80,
+                                height: 80,
+                                color: lightGrey,
+                                child: const Icon(Icons.image_not_supported,
+                                    color: primaryRed),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 12),
+
+                        // --- Course Name ---
                         Text(
                           course.courseName ?? "Unnamed Course",
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: primaryRed,
+                            color: Colors.black,
                           ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
+
+                        // --- Description ---
                         Text(
                           parseHtmlString(course.description),
                           style: const TextStyle(
@@ -139,7 +174,8 @@ class _CoursePageState extends State<CoursePage> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 10),
-                        const Icon(Icons.arrow_forward_ios, color: primaryRed, size: 18),
+                        const Icon(Icons.arrow_forward_ios,
+                            color: primaryRed, size: 18),
                       ],
                     ),
                   ),

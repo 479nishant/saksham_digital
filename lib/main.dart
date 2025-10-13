@@ -13,7 +13,10 @@ import 'InternshipPage/InternshipPage.dart';
 
 void main() {
   runApp(MaterialApp(
-    home:   Test(),
+    home:   Splashscreen(),
+    //home: BannerCarouselPage()
+//    home: Test()
+
     debugShowCheckedModeBanner: false
     ,
   ));

@@ -3,7 +3,7 @@ import 'package:html/parser.dart' show parse;
 import '../MODELS/CoursesModel.dart';
 
 // --- COLOR PALETTE ---
-const Color primaryRed = Color(0xFFE91E63); // Match CoursePage
+const Color primaryRed = Color(0xFFE91E63);
 const Color darkText = Color(0xFF333333);
 const Color lightGrayText = Color(0xFF9E9E9E);
 const Color backgroundGray = Color(0xFFF5F5F5);
@@ -50,6 +50,40 @@ class CourseDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // --- Course Image with Skeleton Loader ---
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                "https://sakshamdigitaltechnology.com/uploads/courses/${course.image}",
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    width: double.infinity,
+                    height: 200,
+                    color: Colors.grey.shade300,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: primaryRed,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: double.infinity,
+                  height: 200,
+                  color: primaryRed.withOpacity(0.1),
+                  child: const Center(
+                    child: Icon(Icons.image_not_supported, color: primaryRed, size: 50),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
             // --- Course Card ---
             Container(
               padding: const EdgeInsets.all(20),
@@ -72,7 +106,7 @@ class CourseDetailPage extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: primaryRed,
+                      color: Colors.black,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -90,9 +124,6 @@ class CourseDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-
-            // --- Metadata Cards ---
-
 
             // --- Enroll Button ---
             ElevatedButton(
@@ -118,13 +149,14 @@ class CourseDetailPage extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 30),
           ],
         ),
       ),
     );
   }
 
-  // --- Metadata Card ---
+  // --- Metadata Card (optional helper function) ---
   Widget _buildMetadataCard(String label, String value) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),

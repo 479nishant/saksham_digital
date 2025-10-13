@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:saksham_digital/Test.dart';
 import 'package:saksham_digital/User/LoginPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Home.dart';
@@ -23,7 +24,7 @@ class _SplashscreenState extends State<Splashscreen> {
       if (b == true) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+          MaterialPageRoute(builder: (context) => Test()),
         );
       } else {
         Navigator.pushReplacement(

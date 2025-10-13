@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-
+import '../Video player/VideoPlayerPage.dart'; // <-- your video player page
 import '../MODELS/TutorialsResponse.dart';
- // Import your model
 
-// --- COLOR PALETTE DEFINITIONS ---
-const Color primaryRed = Color(0xFFC72F3A);
+const Color primaryRed = Color(0xFFE91E63);
 const Color darkText = Color(0xFF333333);
 const Color lightGrayText = Color(0xFF9E9E9E);
 
@@ -29,11 +27,11 @@ class TutorialDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- Image/Video Placeholder ---
+            // --- Tutorial image ---
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
-                "https://sakshamdigitaltechnology.com/uploads/tutorials/${tutorial.image}",
+                "https://sakshamdigitaltechnology.com/uploads/tutorial/${tutorial.image}",
                 width: double.infinity,
                 height: 200,
                 fit: BoxFit.cover,
@@ -42,13 +40,14 @@ class TutorialDetailPage extends StatelessWidget {
                   height: 200,
                   color: primaryRed.withOpacity(0.1),
                   child: const Center(
-                      child: Icon(Icons.videocam_off, color: primaryRed, size: 50)),
+                    child: Icon(Icons.videocam_off, color: primaryRed, size: 50),
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 20),
 
-            // --- Tutorial Title ---
+            // --- Title ---
             Text(
               tutorial.title,
               style: const TextStyle(
@@ -59,25 +58,27 @@ class TutorialDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            // --- Rating and Educator ---
+            // --- Rating ---
             Row(
               children: [
-                Icon(Icons.star, color: Colors.amber, size: 20),
+                const Icon(Icons.star, color: Colors.amber, size: 20),
                 const SizedBox(width: 4),
                 Text(
                   "${tutorial.ratingStar.toStringAsFixed(1)} (${tutorial.ratingCount} ratings)",
                   style: const TextStyle(fontSize: 16, color: darkText),
                 ),
-                const Spacer(),
-                Text(
-                  "By: ${tutorial.educatorName}",
-                  style: const TextStyle(fontSize: 16, color: darkText),
-                ),
               ],
+            ),
+            const SizedBox(height: 4),
+
+            // --- Educator on a separate line ---
+            Text(
+              "By: ${tutorial.educatorName}",
+              style: const TextStyle(fontSize: 16, color: darkText),
             ),
             const Divider(height: 30, color: lightGrayText),
 
-            // --- Details Card ---
+            // --- Tutorial details card ---
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -95,12 +96,25 @@ class TutorialDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // --- Start Tutorial Button ---
+            // --- Start tutorial button ---
             ElevatedButton.icon(
               onPressed: () {
-                // Logic to start the video/tutorial content
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Starting: ${tutorial.title}")),
+                if (tutorial.video.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("No video available")),
+                  );
+                  return;
+                }
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VideoPlayerPage(
+                      videoUrl:
+                      "https://sakshamdigitaltechnology.com/uploads/tutorial/${tutorial.video}",
+                      title: tutorial.title,
+                    ),
+                  ),
                 );
               },
               icon: const Icon(Icons.play_circle_fill, color: Colors.white),
@@ -125,7 +139,6 @@ class TutorialDetailPage extends StatelessWidget {
     );
   }
 
-  // Helper widget for detail rows
   Widget _buildDetailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
